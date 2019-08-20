@@ -11,6 +11,6 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+Route::get('/{any}', function () {
+    return "Haha. You can't see me. I am a parrot's API.";
 });

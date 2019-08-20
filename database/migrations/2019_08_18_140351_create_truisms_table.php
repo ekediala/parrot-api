@@ -17,9 +17,10 @@ class CreateTruismsTable extends Migration
             $table->bigIncrements('id');
             $table->string('author');
             $table->text('truism');
-            $table->integer('haha')->default(0);
-            $table->integer('meh')->default(0);
-            $table->text('interactions')->nullable();
+            $table->integer('haha')->default(0)->unsigned();
+            $table->integer('meh')->default(0)->unsigned();
+            $table->text('interactions');
+            $table->text('seenBy');
             $table->timestamps();
         });
     }

@@ -15,6 +15,7 @@ class Truism extends Model
      */
     protected $casts = [
         'interactions' => 'array',
+        'seenBy' => 'array'
     ];
 
 }

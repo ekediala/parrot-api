@@ -1,8 +1,5 @@
 <?php
 
-use App\Http\Controllers\UserController;
-use Illuminate\Http\Request;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -12,10 +9,10 @@ use Illuminate\Http\Request;
 | routes are loaded by the RouteServiceProvider within a group which
 | is assigned the "api" middleware group. Enjoy building your API!
 |
-*/
+ */
 
 Route::post('/login', 'UserController@login');
 Route::resource('admin', 'TruismController')->middleware('auth:api');
-Route::get('/truism', 'TruismController@show');
-Route::post('/interact', 'TruismController@interact')->middleware('auth:api');
-
+Route::get('/truism/{id}', 'TruismController@show');
+Route::post('/interact', 'TruismController@interact');
+Route::any('/logout', function () {return response()->json(['status' => 'true'], 200);});

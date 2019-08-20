@@ -13,4 +13,4 @@
 
 Route::get('/{any}', function () {
     return "Haha. You can't see me. I am a parrot's API.";
-});
+})->where('any', '.*');

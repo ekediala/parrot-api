@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Truism;
-use App\User;
-use Faker\Generator as Faker;
 use Illuminate\Http\Request;
 
 class TruismController extends Controller
@@ -35,11 +33,13 @@ class TruismController extends Controller
         $status = Truism::create([
             'author' => $request->author,
             'truism' => $request->truism,
+            'seenBy' => [],
+            'interactions' => [],
         ]);
 
         $response = ['status' => $status];
 
-        if (!status) {
+        if (!$status) {
             return response()->json($response, 500);
         }
 
@@ -52,29 +52,25 @@ class TruismController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function show(Faker $faker)
+    public function show($id)
     {
-        if (!auth()->check()) {
-            $user = new User;
-            $user->email = $faker->safeEmail;
-            $user->password = bcrypt('password');
-            $user->name = $faker->name();
-            $user->save();
-            auth()->login($user, true);
-        }
-        if (!request()->session()->has('seen')) {
-            request()->session()->put('seen', []);
-        }
         $truisms = Truism::all();
-        $seen = request()->session()->get('seen');
-        $unseen = $truisms->diff(Truism::whereIn('id', $seen)->get());
-        if (count($unseen) < 1) {
-            $unseen = $truisms;
+        foreach ($truisms as $truism) {
+            if (!in_array($id, $truism->seenBy)) {
+                $unseen = $truism;
+                $seenBy = $truism->seenBy;
+                array_push($seenBy, $id);
+                $truism->seenBy = $seenBy;
+                $truism->save();
+                break;
+            }
         }
-        $truism = $unseen[random_int(0, count($unseen))];
-        request()->session()->push('seen', $truism->id);
-        return response()->json(['response' => $truism], 200);
+        if (!isset($unseen)){
+            $max = count($truisms) - 1;
+            $unseen = $truisms[random_int(0, $max)];
+        }
 
+        return response()->json($unseen, 200);
     }
 
     /**
@@ -125,25 +121,33 @@ class TruismController extends Controller
 
     public function interact()
     {
-        $user_id = auth()->user()->id();
-        $truism_id = request()->truism_id;
-        $interaction_type = request()->interaction_type;
+        request()->validate([
+            'userId' => 'required',
+            'truismId' => 'required',
+            'interactionType' => 'required'
+        ]);
+        $user_id = request()->userId;
+        $truism_id = request()->truismId;
+        $interaction_type = request()->interactionType;
         $truism = Truism::findOrFail($truism_id);
         $interactions = $truism->interactions;
         if (array_key_exists($user_id, $interactions)) {
             $interacted = $interactions[$user_id];
-            if ($interacted == 'meh') {
+            if ($interacted == 'meh' && $truism->meh > 0) {
                 $truism->decrement('meh');
-            } else {
+            } else if ($truism->haha > 0 && $interacted == 'haha'){
                 $truism->decrement('haha');
             }
+            unset($interactions[$user_id]);
+            $truism->interactions = $interactions;
+            $truism->save();
             return response()->json($truism, 200);
-
         }
         if ($interaction_type == 'meh') {
             $truism->increment('meh');
+        } else {
+            $truism->increment('haha');
         }
-        $truism->increment('haha');
         $interactions[$user_id] = $interaction_type;
         $truism->interactions = $interactions;
         $truism->save();

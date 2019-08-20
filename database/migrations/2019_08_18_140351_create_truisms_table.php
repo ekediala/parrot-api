@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateTruismsTable extends Migration
 {
@@ -17,8 +17,9 @@ class CreateTruismsTable extends Migration
             $table->bigIncrements('id');
             $table->string('author');
             $table->text('truism');
-            $table->integer('haha');
-            $table->integer('meh');
+            $table->integer('haha')->default(0);
+            $table->integer('meh')->default(0);
+            $table->text('interactions')->nullable();
             $table->timestamps();
         });
     }

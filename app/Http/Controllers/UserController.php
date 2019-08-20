@@ -19,7 +19,7 @@ class UserController extends Controller
         if (auth()->attempt($credentials)) {
             $success['token'] = auth()->user()->createToken('honestParrot')->accessToken;
             $success['name'] = auth()->user()->name;
-            return response()->json(['success' => $success], 200);
+            return response()->json($success, 200);
         }
         return response()->json(['error' => 'Unauthorised'], 401);
 

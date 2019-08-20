@@ -16,3 +16,6 @@ use Illuminate\Http\Request;
 
 Route::post('/login', 'UserController@login');
 Route::resource('admin', 'TruismController')->middleware('auth:api');
+Route::get('/truism', 'TruismController@show');
+Route::post('/interact', 'TruismController@interact')->middleware('auth:api');
+

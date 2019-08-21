@@ -20,7 +20,7 @@ return [
         'allow_credentials' => false,
 
         'allow_origins' => [
-            'https://honest-parrot.herokuapp.com/',
+            'https://honest-parrot.herokuapp.com',
             'http://localhost:3000',
         ],
 

@@ -55,20 +55,24 @@ class TruismController extends Controller
     public function show($id)
     {
         $truisms = Truism::all();
-        shuffle($truisms);
+        $valid = [];
         foreach ($truisms as $truism) {
             if (!in_array($id, $truism->seenBy)) {
-                $unseen = $truism;
-                $seenBy = $truism->seenBy;
-                array_push($seenBy, $id);
-                $truism->seenBy = $seenBy;
-                $truism->save();
-                break;
+                array_push($valid, $truism);
             }
         }
-        if (!isset($unseen)){
+
+        $max = count($valid) - 1;
+        if ($max < 0) {
             $max = count($truisms) - 1;
             $unseen = $truisms[random_int(0, $max)];
+
+        } else {
+            $unseen = $valid[random_int(0, $max)];
+            $seenBy = $unseen->seenBy;
+            array_push($seenBy, $id);
+            $unseen->seenBy = $seenBy;
+            $unseen->save();
         }
 
         return response()->json($unseen, 200);
@@ -125,7 +129,7 @@ class TruismController extends Controller
         request()->validate([
             'userId' => 'required',
             'truismId' => 'required',
-            'interactionType' => 'required'
+            'interactionType' => 'required',
         ]);
         $user_id = request()->userId;
         $truism_id = request()->truismId;
@@ -136,7 +140,7 @@ class TruismController extends Controller
             $interacted = $interactions[$user_id];
             if ($interacted == 'meh' && $truism->meh > 0) {
                 $truism->decrement('meh');
-            } else if ($truism->haha > 0 && $interacted == 'haha'){
+            } else if ($truism->haha > 0 && $interacted == 'haha') {
                 $truism->decrement('haha');
             }
             unset($interactions[$user_id]);

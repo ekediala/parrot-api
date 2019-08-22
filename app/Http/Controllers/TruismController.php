@@ -55,6 +55,7 @@ class TruismController extends Controller
     public function show($id)
     {
         $truisms = Truism::all();
+        shuffle($truisms);
         foreach ($truisms as $truism) {
             if (!in_array($id, $truism->seenBy)) {
                 $unseen = $truism;
@@ -129,7 +130,7 @@ class TruismController extends Controller
         $user_id = request()->userId;
         $truism_id = request()->truismId;
         $interaction_type = request()->interactionType;
-        $truism = Truism::findOrFail($truism_id);
+        $truism = Truism::where('id', $truism_id)->lockForUpdate()->firstOrFail();
         $interactions = $truism->interactions;
         if (array_key_exists($user_id, $interactions)) {
             $interacted = $interactions[$user_id];
